@@ -51,6 +51,8 @@ px4_add_romfs_files(
 	rc.thermal_cal
 	rc.rover_apps
 	rc.rover_defaults
+	rc.rover_ackermann_apps
+	rc.rover_ackermann_defaults
 	rc.rover_differential_apps
 	rc.rover_differential_defaults
 	rc.uuv_apps

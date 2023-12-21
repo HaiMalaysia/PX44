@@ -43,6 +43,7 @@
 // uORB includes
 #include <uORB/topics/actuator_outputs.h>
 #include <uORB/topics/actuator_motors.h>
+#include <uORB/topics/actuator_servos.h>
 #include <uORB/PublicationMulti.hpp>
 #include <uORB/topics/manual_control_setpoint.h>
 #include <uORB/topics/parameter_update.h>
@@ -53,51 +54,54 @@
 #include <uORB/SubscriptionMultiArray.hpp>
 #include <uORB/topics/differential_drive_setpoint.h>
 
-// Standard library includes
+// Standard library includespr
 #include <math.h>
 
 // Local includes
-#include <DifferentialDriveKinematics.hpp>
-#include "DifferentialDriveControl.hpp"
-#include "AckermannDriveControl.hpp"
+// #include <AckermannDriveKinematics.hpp>
 
-#define DIFFERENTIAL_DRIVE 6
-#define ACKERMANN_DRIVE 5
-
-namespace rover_control
+namespace differential_drive_control
 {
 
-class RoverControl : public ModuleBase<RoverControl>, public ModuleParams,
-	public px4::ScheduledWorkItem
+class AckermannDriveControl : public ModuleParams
 {
 public:
-	RoverControl();
-	~RoverControl() override = default;
+	AckermannDriveControl(ModuleParams *parent);
+	~AckermannDriveControl() override = default;
 
-	/** @see ModuleBase */
-	static int task_spawn(int argc, char *argv[]);
-
-	/** @see ModuleBase */
-	static int custom_command(int argc, char *argv[]);
-
-	/** @see ModuleBase */
-	static int print_usage(const char *reason = nullptr);
-
-	bool init();
+	void Update();
 
 protected:
 	void updateParams() override;
 
 private:
-	void Run() override;
 
-	differential_drive_control::DifferentialDriveControl _differential_drive_control{this};
-	differential_drive_control::AckermannDriveControl _ackermann_drive_control{this};
+	uORB::Subscription _differential_drive_setpoint_sub{ORB_ID(differential_drive_setpoint)};
+	uORB::Subscription _manual_control_setpoint_sub{ORB_ID(manual_control_setpoint)};
+	uORB::Subscription _parameter_update_sub{ORB_ID(parameter_update)};
+	uORB::Subscription _vehicle_control_mode_sub{ORB_ID(vehicle_control_mode)};
+	uORB::Subscription _vehicle_status_sub{ORB_ID(vehicle_status)};
 
+	uORB::PublicationMulti<actuator_motors_s> _actuator_motors_pub{ORB_ID(actuator_motors)};
+	uORB::Publication<actuator_servos_s> _actuator_servos_pub{ORB_ID(actuator_servos)};
+	uORB::Publication<differential_drive_setpoint_s> _differential_drive_setpoint_pub{ORB_ID(differential_drive_setpoint)};
+
+	differential_drive_setpoint_s _differential_drive_setpoint{};
+	// DifferentialDriveKinematics _differential_drive_kinematics{};
+
+	bool _armed = false;
+	bool _manual_driving = false;
+	float _max_speed{0.f};
+	float _max_angular_velocity{0.f};
 
 	DEFINE_PARAMETERS(
-		(ParamInt<px4::params::CA_AIRFRAME>) _param_ca_airframe
+		(ParamFloat<px4::params::RDD_SPEED_SCALE>) _param_rdd_speed_scale,
+		(ParamFloat<px4::params::RDD_ANG_SCALE>) _param_rdd_ang_velocity_scale,
+		(ParamFloat<px4::params::RDD_WHL_SPEED>) _param_rdd_max_wheel_speed,
+		(ParamFloat<px4::params::RDD_WHEEL_BASE>) _param_rdd_wheel_base,
+		(ParamFloat<px4::params::RDD_WHEEL_RADIUS>) _param_rdd_wheel_radius,
+		(ParamInt<px4::params::CA_R_REV>) _param_r_rev
 	)
 };
 
-} // namespace rover_control
+} // namespace differential_drive_control

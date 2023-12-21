@@ -40,8 +40,8 @@ namespace rover_control
 
 RoverControl::RoverControl() :
 	ModuleParams(nullptr),
-	ScheduledWorkItem(MODULE_NAME, px4::wq_configurations::rate_ctrl),
-	_differential_drive_control(this)
+	ScheduledWorkItem(MODULE_NAME, px4::wq_configurations::rate_ctrl)
+	// _differential_drive_control(this)
 {
 	updateParams();
 }
@@ -64,8 +64,12 @@ void RoverControl::Run()
 		exit_and_cleanup();
 	}
 
-	_differential_drive_control.Update();
+	if (_param_ca_airframe.get() == DIFFERENTIAL_DRIVE) {
+		_differential_drive_control.Update();
 
+	} else if (_param_ca_airframe.get() == ACKERMANN_DRIVE) {
+		_ackermann_drive_control.Update();
+	}
 }
 
 int RoverControl::task_spawn(int argc, char *argv[])

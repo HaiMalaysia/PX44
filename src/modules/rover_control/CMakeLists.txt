@@ -39,6 +39,8 @@ px4_add_module(
 	SRCS
 		DifferentialDriveControl.cpp
 		DifferentialDriveControl.hpp
+		AckermannDriveControl.cpp
+		AckermannDriveControl.hpp
 		RoverControl.cpp
 		RoverControl.hpp
 	DEPENDS

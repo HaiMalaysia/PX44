@@ -53,7 +53,7 @@
 #include <uORB/SubscriptionMultiArray.hpp>
 #include <uORB/topics/differential_drive_setpoint.h>
 
-// Standard library includes
+// Standard library includespr
 #include <math.h>
 
 // Local includes
@@ -62,23 +62,11 @@
 namespace differential_drive_control
 {
 
-class DifferentialDriveControl : public ModuleBase<DifferentialDriveControl>, public ModuleParams,
-	public px4::ScheduledWorkItem
+class DifferentialDriveControl : public ModuleParams
 {
 public:
 	DifferentialDriveControl(ModuleParams *parent);
 	~DifferentialDriveControl() override = default;
-
-	/** @see ModuleBase */
-	static int task_spawn(int argc, char *argv[]);
-
-	/** @see ModuleBase */
-	static int custom_command(int argc, char *argv[]);
-
-	/** @see ModuleBase */
-	static int print_usage(const char *reason = nullptr);
-
-	bool init();
 
 	void Update();
 
@@ -86,7 +74,6 @@ protected:
 	void updateParams() override;
 
 private:
-	void Run() override;
 
 	uORB::Subscription _differential_drive_setpoint_sub{ORB_ID(differential_drive_setpoint)};
 	uORB::Subscription _manual_control_setpoint_sub{ORB_ID(manual_control_setpoint)};
