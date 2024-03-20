@@ -101,7 +101,9 @@ void AckermannDriveControl::Update()
 	// 				_differential_drive_setpoint.yaw_rate);
 
 	double steering = _differential_drive_setpoint.yaw_rate;
-	double speed = _differential_drive_setpoint.speed;
+	double speed = _differential_drive_setpoint.speed / _max_speed;
+
+	printf("speed: %f, steering: %f\n", speed, steering);
 
 	// Check if max_angular_wheel_speed is zero
 	// const bool setpoint_timeout = (_differential_drive_setpoint.timestamp + 100_ms) < now;
